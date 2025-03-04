@@ -4,7 +4,7 @@ Adds a screensaver that moves over the screen
 
 # Credits
 
-TheMathGeek_314 for the art.
+TheMathGeek_314 for the art. \
 peekagrub for the code.
 
 # EUPL
