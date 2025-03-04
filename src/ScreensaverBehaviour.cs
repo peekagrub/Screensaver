@@ -16,13 +16,13 @@ public class ScreensaverBehaviour: MonoBehaviour
     {
         ssTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         ssTexture.SetPixel(0, 1, Color.white);
+        ssTexture.Apply();
         using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Screensaver.Resources.screensaver.png"))
         {
             byte[] bytes = new byte[stream.Length];
             stream.Read(bytes, 0, bytes.Length);
             ssTexture.LoadImage(bytes);
         }
-        ssTexture.Apply();
 
         float maxDim = Mathf.Max(Screen.width, Screen.height);
         float clampedSize = Mathf.Clamp(maxDim * 0.25f, 0, Mathf.Min(Screen.width, Screen.height));
