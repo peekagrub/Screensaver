@@ -25,6 +25,7 @@ public class ScreensaverBehaviour: MonoBehaviour
         }
 
         float maxDim = Mathf.Max(Screen.width, Screen.height);
+
         float clampedSize = Mathf.Clamp(maxDim * 0.25f, 0, Mathf.Min(Screen.width, Screen.height));
         position = new Vector2(Random.Range(0, Screen.width - clampedSize), Random.Range(0, Screen.height - clampedSize));
 
@@ -44,6 +45,16 @@ public class ScreensaverBehaviour: MonoBehaviour
 
         float clampedSize = Mathf.Clamp(maxDim * 0.25f, 0, Mathf.Min(Screen.width, Screen.height));
         Vector2 size = new Vector2(clampedSize, clampedSize);
+
+
+        if (ssTexture.width > ssTexture.height)
+        {
+            size.x *= ssTexture.width / (float)ssTexture.height;
+        }
+        else if (ssTexture.width < ssTexture.height)
+        {
+            size.y *= ssTexture.height / (float)ssTexture.width;
+        }
 
         if ((direction.x > 0 && position.x + size.x >= Screen.width) || (direction.x < 0 && position.x <= 0))
         {
