@@ -34,12 +34,17 @@ public class ScreensaverBehaviour : MonoBehaviour
 
         float maxDim = Mathf.Max(Screen.width, Screen.height);
 
-        float clampedSize = Mathf.Clamp(maxDim * 0.25f, 0, Mathf.Min(Screen.width, Screen.height));
+        float clampedSize = Mathf.Clamp(maxDim * Screensaver.settings.screenPercentage, 0, Mathf.Min(Screen.width, Screen.height));
         position = new Vector2(Random.Range(0, Screen.width - clampedSize), Random.Range(0, Screen.height - clampedSize));
 
         direction = new Vector2(Random.value < 0.5 ? 1 : -1, Random.value < 0.5 ? 1 : -1);
 
         col = Random.ColorHSV();
+    }
+
+    public void ToggleScreensaver(bool enabled)
+    {
+        base.enabled = enabled;
     }
 
     private void OnGUI()
@@ -53,7 +58,7 @@ public class ScreensaverBehaviour : MonoBehaviour
 
         position += direction * Time.unscaledDeltaTime * (maxDim / 6);
 
-        float clampedSize = Mathf.Clamp(maxDim * 0.25f, 0, Mathf.Min(Screen.width, Screen.height));
+        float clampedSize = Mathf.Clamp(maxDim * Screensaver.settings.screenPercentage, 0, Mathf.Min(Screen.width, Screen.height));
         Vector2 size = new Vector2(clampedSize, clampedSize);
 
 
