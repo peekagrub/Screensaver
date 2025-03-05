@@ -28,12 +28,10 @@
     <None Include="LICENSE" />
     <None Include="README.md" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources/screensaver.png" />
-  </ItemGroup>
 
   <Target Name="Copy Mod" AfterTargets="PostBuildEvent">
     <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(HollowKnightRefs)/Mods/$(TargetName)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="Resources/screensaver.png" DestinationFolder="$(HollowKnightRefs)/Mods/$(TargetName)/Screensavers" SkipUnchangedFiles="true" />
   </Target>
 
   <Target Name="Create Release Zip" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">

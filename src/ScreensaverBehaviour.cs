@@ -17,11 +17,16 @@ public class ScreensaverBehaviour: MonoBehaviour
         ssTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         ssTexture.SetPixel(0, 1, Color.white);
         ssTexture.Apply();
-        using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Screensaver.Resources.screensaver.png"))
+
+        string dirPath = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
+        string screenSaversPath = Path.Combine(dirPath, "Screensavers");
+        foreach (string file in Directory.GetFiles(screenSaversPath))
         {
-            byte[] bytes = new byte[stream.Length];
-            stream.Read(bytes, 0, bytes.Length);
-            ssTexture.LoadImage(bytes);
+            if (file.EndsWith(".png") || file.EndsWith(".jpg")){
+                byte[] bytes = File.ReadAllBytes(file);
+                ssTexture.LoadImage(bytes);
+                break;
+            }
         }
 
         float maxDim = Mathf.Max(Screen.width, Screen.height);
