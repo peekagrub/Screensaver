@@ -6,11 +6,14 @@ using Random = UnityEngine.Random;
 
 namespace Screensaver;
 
-public class ScreensaverBehaviour: MonoBehaviour
+public class ScreensaverBehaviour : MonoBehaviour
 {
     private Texture2D ssTexture;
     private Vector2 position;
     private Vector2 direction;
+
+    private Rect rect = new Rect(0, 0, 1, 1);
+    private Color col;
 
     private void Start()
     {
@@ -35,6 +38,8 @@ public class ScreensaverBehaviour: MonoBehaviour
         position = new Vector2(Random.Range(0, Screen.width - clampedSize), Random.Range(0, Screen.height - clampedSize));
 
         direction = new Vector2(Random.value < 0.5 ? 1 : -1, Random.value < 0.5 ? 1 : -1);
+
+        col = Random.ColorHSV();
     }
 
     private void OnGUI()
@@ -64,10 +69,12 @@ public class ScreensaverBehaviour: MonoBehaviour
         if ((direction.x > 0 && position.x + size.x >= Screen.width) || (direction.x < 0 && position.x <= 0))
         {
             direction.x *= -1;
+            col = Random.ColorHSV();
         }
         if ((direction.y > 0 && position.y + size.y >= Screen.height) || (direction.y < 0 && position.y <= 0))
         {
             direction.y *= -1;
+            col = Random.ColorHSV();
         }
 
         float xPos = position.x;
@@ -75,8 +82,6 @@ public class ScreensaverBehaviour: MonoBehaviour
         float xSize = size.x;
         float ySize = size.y;
 
-        Rect rect = new Rect(xPos, yPos, xSize, ySize);
-
-        GUI.DrawTexture(rect, ssTexture, ScaleMode.ScaleToFit);
+        Graphics.DrawTexture(new Rect(xPos, yPos, xSize, ySize), ssTexture, rect, 0, 0, 0, 0, col);
     }
 }
