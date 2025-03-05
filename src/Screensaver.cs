@@ -7,6 +7,7 @@ using Modding.Menu.Config;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
+using Satchel.BetterMenus;
 
 namespace Screensaver;
 
@@ -17,7 +18,7 @@ public class GlobalSettings
     public float screenPercentage = 0.25f;
 }
 
-public class Screensaver : Mod, IGlobalSettings<GlobalSettings>, IMenuMod
+public class Screensaver : Mod, IGlobalSettings<GlobalSettings>, ICustomMenuMod
 {
     public static GlobalSettings settings {get; set;} = new GlobalSettings();
 
@@ -51,52 +52,36 @@ public class Screensaver : Mod, IGlobalSettings<GlobalSettings>, IMenuMod
         behaviour.ToggleColorOnBounce(settings.changeColorOnBounce);
     }
 
-    public List<IMenuMod.MenuEntry> GetMenuData(IMenuMod.MenuEntry? toggleButtonEntry)
+    private Menu menuRef;
+
+    private Menu PrepareMenu()
     {
-        return new List<IMenuMod.MenuEntry>
-        {
-            new IMenuMod.MenuEntry
-            {
-                Name = "Screensaver",
-                Description = "Toggle if the screensaver is active",
-                Values = new string []{
-                    "On",
-                    "Off"
-                },
-                Saver = opt => { settings.enabled = opt == 0; behaviour.ToggleScreensaver(settings.enabled); },
-                Loader = () => settings.enabled ? 0 : 1
-            },
-            new IMenuMod.MenuEntry
-            {
-                Name = "Change color on bounce",
-                Description = "Toggle if the color of the screensaver should change on bounce",
-                Values = new string []{
-                    "On",
-                    "Off"
-                },
-                Saver = opt => { settings.changeColorOnBounce = opt == 0; behaviour.ToggleColorOnBounce(settings.changeColorOnBounce); },
-                Loader = () => settings.changeColorOnBounce ? 0 : 1
-            },
-            new  IMenuMod.MenuEntry
-            {
-                Name = "Screen Percentage",
-                Description = "The percentage of the screen that the screensaver covers",
-                Values = new string[] {
-                    "5%",
-                    "10%",
-                    "15%",
-                    "20%",
-                    "25%",
-                    "30%",
-                    "35%",
-                    "40%",
-                    "45%",
-                    "50%",
-                },
-                Saver = opt => { settings.screenPercentage = 0.05f * (opt + 1); },
-                Loader = () => (int)(settings.screenPercentage / 0.05f) - 1
-            },
-        };
+        return new Menu("Screensaver", new Element[]{
+            new  HorizontalOption("Screensaver", 
+                "Toggle if the screensaver is active",
+                new string[] {"On", "Off"},
+                (option) => { settings.enabled = option == 0; behaviour.ToggleScreensaver(settings.enabled); },
+                () => settings.enabled ? 0 : 1
+            ),
+            new  HorizontalOption("Change color on bounce", 
+                "Toggle if the color of the screensaver should change on bounce",
+                new string[] {"On", "Off"},
+                (option) => { settings.changeColorOnBounce = option == 0; behaviour.ToggleColorOnBounce(settings.changeColorOnBounce); },
+                () => settings.changeColorOnBounce ? 0 : 1
+            ),
+            new PercentSlider("Screen Percentage",
+                (option) => settings.screenPercentage = option,
+                () => settings.screenPercentage,
+                0.01f, 0.5f, false
+            ),
+        });
+    }
+
+    public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
+    {
+        menuRef ??= PrepareMenu();
+
+        return menuRef.GetMenuScreen(modListMenu);
     }
 
     public bool ToggleButtonInsideMenu => false;

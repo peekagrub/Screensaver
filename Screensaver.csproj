@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Reference Include="$(HollowKnightRefs)/*.dll" />
+    <Reference Include="$(HollowKnightRefs)/Mods/Satchel/Satchel.dll" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src" />
