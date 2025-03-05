@@ -13,6 +13,7 @@ namespace Screensaver;
 public class GlobalSettings
 {
     public bool enabled = true;
+    public bool changeColorOnBounce = true;
     public float screenPercentage = 0.25f;
 }
 
@@ -21,16 +22,17 @@ public class Screensaver : Mod, IGlobalSettings<GlobalSettings>, IMenuMod
     public static GlobalSettings settings {get; set;} = new GlobalSettings();
 
     public void OnLoadGlobal(GlobalSettings s) {
-         settings = s;
-         if (behaviour != null)
-         {
-             behaviour.ToggleScreensaver(settings.enabled);
-         }
+        settings = s;
+        if (behaviour != null)
+        {
+            behaviour.ToggleScreensaver(settings.enabled);
+            behaviour.ToggleColorOnBounce(settings.changeColorOnBounce);
+        }
     }
     public GlobalSettings OnSaveGlobal() => settings;
 
     new public string GetName () => "Screensaver";
-    public override string GetVersion () => "1.1.0.0";
+    public override string GetVersion () => "1.1.0.1";
 
     private ScreensaverBehaviour behaviour;
     private static Screensaver _instance;
@@ -46,6 +48,7 @@ public class Screensaver : Mod, IGlobalSettings<GlobalSettings>, IMenuMod
         behaviour = SSObj.AddComponent<ScreensaverBehaviour>();
         Object.DontDestroyOnLoad(SSObj);
         behaviour.ToggleScreensaver(settings.enabled);
+        behaviour.ToggleColorOnBounce(settings.changeColorOnBounce);
     }
 
     public List<IMenuMod.MenuEntry> GetMenuData(IMenuMod.MenuEntry? toggleButtonEntry)
@@ -62,6 +65,17 @@ public class Screensaver : Mod, IGlobalSettings<GlobalSettings>, IMenuMod
                 },
                 Saver = opt => { settings.enabled = opt == 0; behaviour.ToggleScreensaver(settings.enabled); },
                 Loader = () => settings.enabled ? 0 : 1
+            },
+            new IMenuMod.MenuEntry
+            {
+                Name = "Change color on bounce",
+                Description = "Toggle if the color of the screensaver should change on bounce",
+                Values = new string []{
+                    "On",
+                    "Off"
+                },
+                Saver = opt => { settings.changeColorOnBounce = opt == 0; behaviour.ToggleColorOnBounce(settings.changeColorOnBounce); },
+                Loader = () => settings.changeColorOnBounce ? 0 : 1
             },
             new  IMenuMod.MenuEntry
             {

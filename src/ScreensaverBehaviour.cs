@@ -15,6 +15,9 @@ public class ScreensaverBehaviour : MonoBehaviour
     private Rect rect = new Rect(0, 0, 1, 1);
     private Color col;
 
+    private delegate void OnBounceDelegate();
+    private OnBounceDelegate onBounce;
+
     private void Start()
     {
         ssTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
@@ -39,12 +42,32 @@ public class ScreensaverBehaviour : MonoBehaviour
 
         direction = new Vector2(Random.value < 0.5 ? 1 : -1, Random.value < 0.5 ? 1 : -1);
 
-        col = Random.ColorHSV();
+        // this is not done when the screensaver bounces the texture can flicker 
+        // if change color on bounce is disabled
+        onBounce += () => {};
     }
 
     public void ToggleScreensaver(bool enabled)
     {
         base.enabled = enabled;
+    }
+
+    public void ToggleColorOnBounce(bool change)
+    {
+        if (change) 
+        {
+            onBounce += randomColor;
+        }
+        else
+        {
+            onBounce -= randomColor;
+            col = Color.white;
+        }
+    }
+
+    private void randomColor()
+    {
+        col = Random.ColorHSV();
     }
 
     private void OnGUI()
@@ -74,12 +97,12 @@ public class ScreensaverBehaviour : MonoBehaviour
         if ((direction.x > 0 && position.x + size.x >= Screen.width) || (direction.x < 0 && position.x <= 0))
         {
             direction.x *= -1;
-            col = Random.ColorHSV();
+            onBounce();
         }
         if ((direction.y > 0 && position.y + size.y >= Screen.height) || (direction.y < 0 && position.y <= 0))
         {
             direction.y *= -1;
-            col = Random.ColorHSV();
+            onBounce();
         }
 
         float xPos = position.x;
