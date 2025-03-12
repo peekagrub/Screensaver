@@ -15,8 +15,7 @@ public class ScreensaverBehaviour : MonoBehaviour
     private Rect rect = new Rect(0, 0, 1, 1);
     private Color col;
 
-    private delegate void OnBounceDelegate();
-    private OnBounceDelegate onBounce;
+    private event Action onBounce;
 
     private void Start()
     {
@@ -41,10 +40,6 @@ public class ScreensaverBehaviour : MonoBehaviour
         position = new Vector2(Random.Range(0, Screen.width - clampedSize), Random.Range(0, Screen.height - clampedSize));
 
         direction = new Vector2(Random.value < 0.5 ? 1 : -1, Random.value < 0.5 ? 1 : -1);
-
-        // this is not done when the screensaver bounces the texture can flicker 
-        // if change color on bounce is disabled
-        onBounce += () => {};
     }
 
     public void ToggleScreensaver(bool enabled)
@@ -79,7 +74,7 @@ public class ScreensaverBehaviour : MonoBehaviour
 
         float maxDim = Mathf.Max(Screen.width, Screen.height);
 
-        position += direction * Time.unscaledDeltaTime * (maxDim / 6);
+        position += direction * Time.unscaledDeltaTime * maxDim * Screensaver.settings.speed;
 
         float clampedSize = Mathf.Clamp(maxDim * Screensaver.settings.screenPercentage, 0, Mathf.Min(Screen.width, Screen.height));
         Vector2 size = new Vector2(clampedSize, clampedSize);
@@ -97,12 +92,12 @@ public class ScreensaverBehaviour : MonoBehaviour
         if ((direction.x > 0 && position.x + size.x >= Screen.width) || (direction.x < 0 && position.x <= 0))
         {
             direction.x *= -1;
-            onBounce();
+            onBounce?.Invoke();
         }
         if ((direction.y > 0 && position.y + size.y >= Screen.height) || (direction.y < 0 && position.y <= 0))
         {
             direction.y *= -1;
-            onBounce();
+            onBounce?.Invoke();
         }
 
         float xPos = position.x;
