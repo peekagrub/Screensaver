@@ -116,7 +116,7 @@ public class Screensaver : Mod, IGlobalSettings<GlobalSettings>, ICustomMenuMod
             new FixedCustomSlider("Screensaver Count",
                 (option) => { settings.count = (int)option; UpdateCount(); },
                 () => settings.count,
-                1f, 9.0f, true
+                1f, 25.0f, true
             ),
             new PercentSlider("Screen Percentage",
                 (option) => settings.screenPercentage = option,
@@ -126,7 +126,7 @@ public class Screensaver : Mod, IGlobalSettings<GlobalSettings>, ICustomMenuMod
             new FixedCustomSlider("Screensaver Speed",
                 (option) => settings.speed = option,
                 () => settings.speed,
-                0.1f, 2.0f, false
+                0.1f, 5.0f, false
             ),
         });
     }
