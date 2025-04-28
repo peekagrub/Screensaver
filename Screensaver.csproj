@@ -28,12 +28,12 @@
     <None Include=".gitignore" />
     <None Include="LICENSE" />
     <None Include="README.md" />
-    <AssetsSourceFiles Include="Resources/*.png" />
+    <AssetsSourceFiles Include="Resources/Default/*" />
   </ItemGroup>
 
   <Target Name="Copy Mod" AfterTargets="PostBuildEvent">
     <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(HollowKnightRefs)/Mods/$(TargetName)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="@(AssetsSourceFiles)" DestinationFolder="$(HollowKnightRefs)/Mods/$(TargetName)/Screensavers" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(AssetsSourceFiles)" DestinationFolder="$(HollowKnightRefs)/Mods/$(TargetName)/Screensavers/Default" SkipUnchangedFiles="true" />
   </Target>
 
   <Target Name="Create Release Zip" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
@@ -43,7 +43,7 @@
 
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ExportDir)/$(TargetName)/" />
     <Copy SourceFiles="README.md;LICENSE;$(TargetPath);$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(ExportDir)/$(TargetName)/zip/" />
-    <Copy SourceFiles="@(AssetsSourceFiles)" DestinationFolder="$(ExportDir)/$(TargetName)/zip/Screensavers/" />
+    <Copy SourceFiles="@(AssetsSourceFiles)" DestinationFolder="$(ExportDir)/$(TargetName)/zip/Screensavers/Default" />
     <ZipDirectory SourceDirectory="$(ExportDir)/$(TargetName)/zip/" DestinationFile="$(ExportDir)/$(TargetName)/$(TargetName).zip" />
 
     <GetFileHash Files="$(ExportDir)/$(TargetName)/$(TargetName).zip" Algorithm="SHA256">

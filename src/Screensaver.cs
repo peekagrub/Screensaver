@@ -7,7 +7,7 @@ using Modding.Menu.Config;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
-using Satchel.BetterMenus;
+using Screensaver.Menus;
 
 namespace Screensaver;
 
@@ -18,21 +18,12 @@ public class GlobalSettings
     public int count = 1;
     public float screenPercentage = 0.25f;
     public float speed = 0.15f;
+    public string saverName = "";
 }
 
 public class Screensaver : Mod, IGlobalSettings<GlobalSettings>, ICustomMenuMod
 {
-    public static GlobalSettings settings {get; set;} = new GlobalSettings();
-
-    public void OnLoadGlobal(GlobalSettings s) {
-        settings = s;
-        foreach (var behaviour in behaviours)
-        {
-            behaviour.ToggleScreensaver(settings.enabled);
-            behaviour.ToggleColorOnBounce(settings.changeColorOnBounce);
-        }
-    }
-    public GlobalSettings OnSaveGlobal() => settings;
+    internal static GlobalSettings settings {get; set;} = new GlobalSettings();
 
     new public string GetName () => "Screensaver";
     public override string GetVersion () => "1.1.1.0";
@@ -41,13 +32,29 @@ public class Screensaver : Mod, IGlobalSettings<GlobalSettings>, ICustomMenuMod
     private List<ScreensaverBehaviour> behaviours = new();
     private static Screensaver _instance;
 
-    public static Screensaver Instance {
-        get { return _instance; }
+    public static Screensaver Instance { get { return _instance; } }
+    public bool ToggleButtonInsideMenu { get; } = false;
+
+    public void OnLoadGlobal(GlobalSettings s) 
+    {
+        settings = s;
+        foreach (var behaviour in behaviours)
+        {
+            behaviour.ToggleScreensaver(settings.enabled);
+            behaviour.ToggleColorOnBounce(settings.changeColorOnBounce);
+        }
+    }
+    public GlobalSettings OnSaveGlobal()
+    {
+        settings.saverName = ScreensaverManager.Instance.CurrentScreensaver.Name;
+
+        return settings;
     }
 
     public override void Initialize ()
     {
         _instance = this;
+        ScreensaverManager.Instance.SetScreensaverByName(settings.saverName);
         SSObj = new GameObject();
         for (int i = 0; i < settings.count; i++)
         {
@@ -59,7 +66,7 @@ public class Screensaver : Mod, IGlobalSettings<GlobalSettings>, ICustomMenuMod
         Object.DontDestroyOnLoad(SSObj);
     }
 
-    private void UpdateToggle()
+    internal void UpdateToggle()
     {
         foreach (var behaviour in behaviours)
         {
@@ -67,7 +74,7 @@ public class Screensaver : Mod, IGlobalSettings<GlobalSettings>, ICustomMenuMod
         }
     }
 
-    private void UpdateColorOnBounce()
+    internal void UpdateColorOnBounce()
     {
         foreach (var behaviour in behaviours)
         {
@@ -75,7 +82,7 @@ public class Screensaver : Mod, IGlobalSettings<GlobalSettings>, ICustomMenuMod
         }
     }
 
-    private void UpdateCount()
+    internal void UpdateCount()
     {
         if (behaviours.Count > settings.count)
         {
@@ -98,45 +105,8 @@ public class Screensaver : Mod, IGlobalSettings<GlobalSettings>, ICustomMenuMod
         }
     }
 
-    private Menu menuRef;
-
-    private Menu PrepareMenu()
-    {
-        return new Menu("Screensaver", new Element[]{
-            Blueprints.HorizontalBoolOption("Screensaver",
-                "Toggle if the screensaver is active",
-                (option) => { settings.enabled = option; UpdateToggle(); },
-                () => settings.enabled
-            ),
-            Blueprints.HorizontalBoolOption("Change color on bounce", 
-                "Toggle if the color of the screensaver should change on bounce",
-                (option) => { settings.changeColorOnBounce = option; UpdateColorOnBounce(); },
-                () => settings.changeColorOnBounce
-            ),
-            new FixedCustomSlider("Screensaver Count",
-                (option) => { settings.count = (int)option; UpdateCount(); },
-                () => settings.count,
-                1f, 25.0f, true
-            ),
-            new PercentSlider("Screen Percentage",
-                (option) => settings.screenPercentage = option,
-                () => settings.screenPercentage,
-                0.01f, 0.5f, false
-            ),
-            new FixedCustomSlider("Screensaver Speed",
-                (option) => settings.speed = option,
-                () => settings.speed,
-                0.1f, 5.0f, false
-            ),
-        });
-    }
-
     public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
     {
-        menuRef ??= PrepareMenu();
-
-        return menuRef.GetMenuScreen(modListMenu);
+        return ModMenu.GetMenu(modListMenu, toggleDelegates);
     }
-
-    public bool ToggleButtonInsideMenu => false;
 }

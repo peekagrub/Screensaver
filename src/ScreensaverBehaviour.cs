@@ -6,34 +6,17 @@ using Random = UnityEngine.Random;
 
 namespace Screensaver;
 
-public class ScreensaverBehaviour : MonoBehaviour
+internal class ScreensaverBehaviour : MonoBehaviour
 {
-    private Texture2D ssTexture;
     private Vector2 position;
     private Vector2 direction;
 
-    private Rect rect = new Rect(0, 0, 1, 1);
-    private Color col;
+    private Color col = Color.grey;
 
     private event Action onBounce;
 
     private void Start()
     {
-        ssTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
-        ssTexture.SetPixel(0, 1, Color.white);
-        ssTexture.Apply();
-
-        string dirPath = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
-        string screenSaversPath = Path.Combine(dirPath, "Screensavers");
-        foreach (string file in Directory.GetFiles(screenSaversPath))
-        {
-            if (file.EndsWith(".png") || file.EndsWith(".jpg")){
-                byte[] bytes = File.ReadAllBytes(file);
-                ssTexture.LoadImage(bytes);
-                break;
-            }
-        }
-
         float maxDim = Mathf.Max(Screen.width, Screen.height);
 
         float clampedSize = Mathf.Clamp(maxDim * Screensaver.settings.screenPercentage, 0, Mathf.Min(Screen.width, Screen.height));
@@ -41,13 +24,14 @@ public class ScreensaverBehaviour : MonoBehaviour
 
         direction = new Vector2(Random.value < 0.5 ? 1 : -1, Random.value < 0.5 ? 1 : -1);
     }
+    
 
-    public void ToggleScreensaver(bool enabled)
+    internal void ToggleScreensaver(bool enabled)
     {
         base.enabled = enabled;
     }
 
-    public void ToggleColorOnBounce(bool change)
+    internal void ToggleColorOnBounce(bool change)
     {
         if (change) 
         {
@@ -56,7 +40,7 @@ public class ScreensaverBehaviour : MonoBehaviour
         else
         {
             onBounce -= randomColor;
-            col = Color.white;
+            col = Color.grey;
         }
     }
 
@@ -72,6 +56,10 @@ public class ScreensaverBehaviour : MonoBehaviour
             return;
         }
 
+        SelectableScreensaver ss = ScreensaverManager.Instance.CurrentScreensaver;
+
+        Rect uv = ss.GetUv();
+
         float maxDim = Mathf.Max(Screen.width, Screen.height);
 
         position += direction * Time.unscaledDeltaTime * maxDim * Screensaver.settings.speed;
@@ -80,13 +68,13 @@ public class ScreensaverBehaviour : MonoBehaviour
         Vector2 size = new Vector2(clampedSize, clampedSize);
 
 
-        if (ssTexture.width > ssTexture.height)
+        if (ss.width > ss.height)
         {
-            size.x *= ssTexture.width / (float)ssTexture.height;
+            size.x *= ss.width / (float)ss.height;
         }
-        else if (ssTexture.width < ssTexture.height)
+        else if (ss.width < ss.height)
         {
-            size.y *= ssTexture.height / (float)ssTexture.width;
+            size.y *= ss.height / (float)ss.width;
         }
 
         if ((direction.x > 0 && position.x + size.x >= Screen.width) || (direction.x < 0 && position.x <= 0))
@@ -105,6 +93,6 @@ public class ScreensaverBehaviour : MonoBehaviour
         float xSize = size.x;
         float ySize = size.y;
 
-        Graphics.DrawTexture(new Rect(xPos, yPos, xSize, ySize), ssTexture, rect, 0, 0, 0, 0, col);
+        Graphics.DrawTexture(new Rect(xPos, yPos, xSize, ySize), ss.Texture, uv, 0, 0, 0, 0, col);
     }
 }
