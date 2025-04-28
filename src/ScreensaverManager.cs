@@ -100,11 +100,7 @@ internal class ScreensaverManager
                     return LoadAnimatedScreensaver(dirPath, saver.FileNames, saver.FPS, saver.FrameTime);
                 } else if (saver.FileNames != null)
                 {
-                    byte[] bytes = File.ReadAllBytes(Path.Combine(dirPath, saver.FileNames[0]));
-                    Texture2D tex = new Texture2D(1, 1, TextureFormat.ARGB32, false);
-                    tex.LoadImage(bytes);
-
-                    return new SelectableScreensaver(new DirectoryInfo(dirPath).Name, tex);
+                    return LoadStaticScreensaver(dirPath, saver.FileNames[0]);
                 }
                 
                 Screensaver.Instance.LogError($"Exception trying to load {new DirectoryInfo(dirPath).Name}");
@@ -113,11 +109,7 @@ internal class ScreensaverManager
             {
                 string file = Directory.GetFiles(dirPath).Where(f => Regex.IsMatch(f, @"\.jpe?g$|\.png$")).First();
 
-                byte[] bytes = File.ReadAllBytes(file);
-                Texture2D tex = new Texture2D(1, 1, TextureFormat.ARGB32, false);
-                tex.LoadImage(bytes);
-
-                return new SelectableScreensaver(new DirectoryInfo(dirPath).Name, tex);
+                return LoadStaticScreensaver(dirPath, file);
             }
         } catch (Exception e)
         {
@@ -134,7 +126,7 @@ internal class ScreensaverManager
                 .Select(f => {
                     byte[] bytes = File.ReadAllBytes(Path.Combine(dirPath, f));
                     Texture2D newTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
-                    newTexture.LoadImage(bytes);
+                    newTexture.LoadImage(bytes, false);
                     return newTexture;
                 })
                 .ToArray();
@@ -162,6 +154,15 @@ internal class ScreensaverManager
 
         Screensaver.Instance.LogError($"Error trying to load {new DirectoryInfo(dirPath).Name}");
         return null;
+    }
+
+    private SelectableScreensaver LoadStaticScreensaver(string dirPath, string filename)
+    {
+        byte[] bytes = File.ReadAllBytes(Path.Combine(dirPath, filename));
+        Texture2D tex = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+        tex.LoadImage(bytes, true);
+
+        return new SelectableScreensaver(new DirectoryInfo(dirPath).Name, tex);
     }
 }
 
