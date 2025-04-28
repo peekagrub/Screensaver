@@ -101,15 +101,13 @@ internal class ScreensaverManager
                 } else if (saver.FileNames != null)
                 {
                     return LoadStaticScreensaver(dirPath, saver.FileNames[0]);
+                } else
+                {
+                    return LoadStaticScreensaver(dirPath);
                 }
-                
-                Screensaver.Instance.LogError($"Exception trying to load {new DirectoryInfo(dirPath).Name}");
-                return null;
             } else
             {
-                string file = Directory.GetFiles(dirPath).Where(f => Regex.IsMatch(f, @"\.jpe?g$|\.png$")).First();
-
-                return LoadStaticScreensaver(dirPath, file);
+                return LoadStaticScreensaver(dirPath);
             }
         } catch (Exception e)
         {
@@ -154,6 +152,13 @@ internal class ScreensaverManager
 
         Screensaver.Instance.LogError($"Error trying to load {new DirectoryInfo(dirPath).Name}");
         return null;
+    }
+
+    private SelectableScreensaver LoadStaticScreensaver(string dirPath)
+    {
+        string filename = Directory.GetFiles(dirPath).Where(f => Regex.IsMatch(f, @"\.jpe?g$|\.png$")).First();
+
+        return LoadStaticScreensaver(dirPath, filename);
     }
 
     private SelectableScreensaver LoadStaticScreensaver(string dirPath, string filename)
