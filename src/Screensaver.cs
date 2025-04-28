@@ -11,16 +11,6 @@ using Screensaver.Menus;
 
 namespace Screensaver;
 
-public class GlobalSettings
-{
-    public bool enabled = true;
-    public bool changeColorOnBounce = true;
-    public int count = 1;
-    public float screenPercentage = 0.25f;
-    public float speed = 0.15f;
-    public string saverName = "";
-}
-
 public class Screensaver : Mod, IGlobalSettings<GlobalSettings>, ICustomMenuMod
 {
     internal static GlobalSettings settings {get; set;} = new GlobalSettings();
