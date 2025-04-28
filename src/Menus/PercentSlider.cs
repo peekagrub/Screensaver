@@ -6,7 +6,7 @@ using Modding;
 using Modding.Menu;
 using Satchel.BetterMenus;
 
-namespace Screensaver;
+namespace Screensaver.Menus;
 
 public class PercentSlider : FixedCustomSlider
 {
