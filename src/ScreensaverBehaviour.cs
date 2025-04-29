@@ -1,6 +1,5 @@
 using System;
-using System.IO;
-using System.Reflection;
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -8,27 +7,34 @@ namespace Screensaver;
 
 internal class ScreensaverBehaviour : MonoBehaviour
 {
-    private Vector2 position;
-    private Vector2 direction;
+    private static Rect _rect = new Rect(0, 0, 1, 1);
 
-    private Color col = Color.grey;
+    private List<Vector2> positions;
+    private List<Vector2> directions;
+    private List<Color> colors;
 
-    private event Action onBounce;
+    private event Action<int> onBounce;
 
-    private void Start()
+    private void Awake()
     {
         float maxDim = Mathf.Max(Screen.width, Screen.height);
-
         float clampedSize = Mathf.Clamp(maxDim * Screensaver.settings.screenPercentage, 0, Mathf.Min(Screen.width, Screen.height));
-        position = new Vector2(Random.Range(0, Screen.width - clampedSize), Random.Range(0, Screen.height - clampedSize));
 
-        direction = new Vector2(Random.value < 0.5 ? 1 : -1, Random.value < 0.5 ? 1 : -1);
+        positions = new List<Vector2>(Screensaver.settings.count);
+        directions = new List<Vector2>(Screensaver.settings.count);
+        colors = new List<Color>(Screensaver.settings.count);
+
+        for (int i = 0; i < positions.Capacity; i++)
+        {
+            positions.Add(new Vector2(Random.Range(0, Screen.width - clampedSize), Random.Range(0, Screen.height - clampedSize)));
+            directions.Add(new Vector2(Random.value < 0.5 ? 1 : -1, Random.value < 0.5 ? 1 : -1));
+            colors.Add(Color.grey);
+        }
     }
-    
 
-    internal void ToggleScreensaver(bool enabled)
+    internal void ToggleScreensaver(bool _enabled)
     {
-        base.enabled = enabled;
+        enabled = _enabled;
     }
 
     internal void ToggleColorOnBounce(bool change)
@@ -40,13 +46,37 @@ internal class ScreensaverBehaviour : MonoBehaviour
         else
         {
             onBounce -= randomColor;
-            col = Color.grey;
+            for (int i = 0; i < colors.Count; i++)
+            {
+                colors[i] = Color.grey;
+            }
         }
     }
 
-    private void randomColor()
+    internal void SetCount(int newCount)
     {
-        col = Random.ColorHSV();
+        if (newCount < positions.Count)
+        {
+            positions.RemoveRange(newCount, positions.Count - newCount);
+            directions.RemoveRange(newCount, directions.Count - newCount);
+            colors.RemoveRange(newCount, colors.Count - newCount);
+        } else if (newCount > positions.Count)
+        {
+            float maxDim = Mathf.Max(Screen.width, Screen.height);
+            float clampedSize = Mathf.Clamp(maxDim * Screensaver.settings.screenPercentage, 0, Mathf.Min(Screen.width, Screen.height));
+
+            for (int i = positions.Count; i < newCount; i++)
+            {
+                positions.Add(new Vector2(Random.Range(0, Screen.width - clampedSize), Random.Range(0, Screen.height - clampedSize)));
+                directions.Add(new Vector2(Random.value < 0.5 ? 1 : -1, Random.value < 0.5 ? 1 : -1));
+                colors.Add(Color.grey);
+            }
+        }
+    }
+
+    private void randomColor(int index)
+    {
+        colors[index] = Random.ColorHSV();
     }
 
     private void OnGUI()
@@ -58,15 +88,12 @@ internal class ScreensaverBehaviour : MonoBehaviour
 
         SelectableScreensaver ss = ScreensaverManager.Instance.CurrentScreensaver;
 
-        Rect uv = ss.GetUv();
+        Rect uv = ss.GetUV();
 
         float maxDim = Mathf.Max(Screen.width, Screen.height);
 
-        position += direction * Time.unscaledDeltaTime * maxDim * Screensaver.settings.speed;
-
         float clampedSize = Mathf.Clamp(maxDim * Screensaver.settings.screenPercentage, 0, Mathf.Min(Screen.width, Screen.height));
         Vector2 size = new Vector2(clampedSize, clampedSize);
-
 
         if (ss.width > ss.height)
         {
@@ -77,22 +104,31 @@ internal class ScreensaverBehaviour : MonoBehaviour
             size.y *= ss.height / (float)ss.width;
         }
 
-        if ((direction.x > 0 && position.x + size.x >= Screen.width) || (direction.x < 0 && position.x <= 0))
+        GL.PushMatrix();
+        for (int i = 0; i < positions.Count; i++)
         {
-            direction.x *= -1;
-            onBounce?.Invoke();
-        }
-        if ((direction.y > 0 && position.y + size.y >= Screen.height) || (direction.y < 0 && position.y <= 0))
-        {
-            direction.y *= -1;
-            onBounce?.Invoke();
-        }
+            Vector2 position = positions[i];
+            Vector2 direction = directions[i];
+            position += direction * Time.unscaledDeltaTime * maxDim * Screensaver.settings.speed;
 
-        float xPos = position.x;
-        float yPos = position.y;
-        float xSize = size.x;
-        float ySize = size.y;
+            if ((direction.x > 0 && position.x + size.x >= Screen.width) || (direction.x < 0 && position.x <= 0))
+            {
+                direction.x *= -1;
+                onBounce?.Invoke(i);
+            }
+            if ((direction.y > 0 && position.y + size.y >= Screen.height) || (direction.y < 0 && position.y <= 0))
+            {
+                direction.y *= -1;
+                onBounce?.Invoke(i);
+            }
 
-        Graphics.DrawTexture(new Rect(xPos, yPos, xSize, ySize), ss.Texture, uv, 0, 0, 0, 0, col);
+            GL.MultMatrix(Matrix4x4.TRS(position, Quaternion.identity, size));
+
+            Graphics.DrawTexture(_rect, ss.Texture, uv, 0, 0, 0, 0, colors[i]);
+
+            positions[i] = position;
+            directions[i] = direction;
+        }
+        GL.PopMatrix();
     }
 }

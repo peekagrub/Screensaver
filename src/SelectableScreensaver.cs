@@ -1,3 +1,4 @@
+using System.Reflection;
 using UnityEngine;
 
 namespace Screensaver;
@@ -33,7 +34,7 @@ internal class SelectableScreensaver
         _prevFrameTime = Time.unscaledTime;
     }
     
-    internal Rect GetUv()
+    internal Rect GetUV()
     {
         if (Time.unscaledTime - _prevFrameTime >= _timePerFrame)
         {
