@@ -1,4 +1,5 @@
 using System.Reflection;
+using Screensaver.Utils;
 using UnityEngine;
 
 namespace Screensaver;
@@ -7,7 +8,7 @@ internal class SelectableScreensaver
 {
     private string _name = "";
     private Texture2D _tex;
-    private Rect[] _uvs;
+    private Rect[] _rects;
 
     private int _index = 0;
     private float _timePerFrame = 0;
@@ -18,17 +19,19 @@ internal class SelectableScreensaver
 
     internal Texture2D Texture { get { return _tex; } }
 
-    internal int height { get => (int)(_uvs[_index].height * _tex.height);  }
-    internal int width { get => (int)(_uvs[_index].width * _tex.width);  }
+    internal Rect Rect { get { return _rects[_index]; } }
 
-    internal SelectableScreensaver(string name, Texture2D texture, Rect[] uvs = null, float frameTime = 0)
+    internal int height { get => (int)(_rects[_index].height * _tex.height);  }
+    internal int width { get => (int)(_rects[_index].width * _tex.width);  }
+
+    internal SelectableScreensaver(string name, Texture2D texture, Rect[] rects = null, float frameTime = 0)
     {
         _name = name;
         _tex = texture;
-        _uvs = uvs;
-        if (_uvs == null)
+        _rects = rects;
+        if (_rects == null)
         {
-            _uvs = [new Rect(0, 0, 1, 1)];
+            _rects = [new Rect(0, 0, 1, 1)];
         }
         _timePerFrame = frameTime;
         _prevFrameTime = Time.unscaledTime;
@@ -38,11 +41,11 @@ internal class SelectableScreensaver
     {
         if (Time.unscaledTime - _prevFrameTime >= _timePerFrame)
         {
-            if (++_index >= _uvs.Length)
+            if (++_index >= _rects.Length)
                 _index = 0;
             _prevFrameTime = Time.unscaledTime;
         }
 
-        return _uvs[_index];
+        return _rects[_index];
     }
 }

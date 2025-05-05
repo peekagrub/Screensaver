@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Screensaver.Utils;
 using Satchel;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -129,7 +130,10 @@ internal class ScreensaverManager
                 })
                 .ToArray();
 
-            int sheetSize = texs.Sum(t => t.width);
+            int sumWidth = texs.Sum(t => t.width);
+            int sumHeight = texs.Sum(t => t.height);
+            int sheetSize = sumWidth >= sumHeight ? sumWidth : sumHeight;
+
 
             Texture2D atlas = new Texture2D(1, 1);
 

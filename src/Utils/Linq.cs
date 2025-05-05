@@ -1,6 +1,7 @@
+using System;
 using System.Collections.Generic;
 
-namespace System.Linq;
+namespace Screensaver.Utils;
 
 public static class Linq
 {
