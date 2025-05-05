@@ -104,6 +104,8 @@ internal class ScreensaverBehaviour : MonoBehaviour
             size.y *= ss.height / (float)ss.width;
         }
 
+        Matrix4x4 scale = Matrix4x4.Scale(size);
+
         GL.PushMatrix();
         for (int i = 0; i < positions.Count; i++)
         {
@@ -122,7 +124,7 @@ internal class ScreensaverBehaviour : MonoBehaviour
                 onBounce?.Invoke(i);
             }
 
-            GL.MultMatrix(Matrix4x4.TRS(position, Quaternion.identity, size));
+            GL.MultMatrix(Matrix4x4.Translate(position) * scale);
 
             Graphics.DrawTexture(_rect, ss.Texture, uv, 0, 0, 0, 0, colors[i]);
 
