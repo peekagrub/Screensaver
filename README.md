@@ -4,9 +4,24 @@ Adds a screensaver that moves over the screen
 
 # How to use
 
-Put the folder containing the screensaver in the `Mods/Screensaver/Screensavers` folder. \
+Put the directory containing the screensaver in the `Mods/Screensaver/Screensavers` directory. \
 Then launch the game and in `Options > Mods > Screensaver` use the `Select Screensaver` or `Screensaver List` options to select the screensaver. \
 In `Screensaver Options` are extra options like how many times the screensaver is displayed, how big they are or how fast they move.
+
+Example of the directory structure:
+```
+Mods
+├── Screensaver
+│   ├── Screensaver.dll
+│   ├── Screensaver.pdb
+│   └── Screensavers
+│       ├── Default
+│       │   └── screensaver.png
+│       └── NewScreensaver
+│           └── screensaver.png
+│
+└── Other Mods
+```
 
 # How to create a screensaver
 
