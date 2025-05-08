@@ -16,7 +16,7 @@ public class Screensaver : Mod, IGlobalSettings<GlobalSettings>, ICustomMenuMod
     internal static GlobalSettings settings {get; set;} = new GlobalSettings();
 
     new public string GetName () => "Screensaver";
-    public override string GetVersion () => "1.1.1.0";
+    public override string GetVersion () => "1.2.0.0";
 
     private GameObject SSObj;
     private ScreensaverBehaviour behaviour;
