@@ -27,26 +27,7 @@ public class FixedCustomSlider : CustomSlider
         }
     }
 
-    public override GameObjectRow Create(ContentArea c, Menu Instance, bool AddToList = true)
-    {
-        var ret = base.Create(c, Instance, AddToList);
-        Action<float> updateOnEvent = newValue =>
-        {
-            UpdateValueLabel();
-        };
-
-        slider.onValueChanged.AddListener(updateOnEvent.Invoke);
-
-        return ret;
-    }
-
-    public override void Update()
-    {
-        base.Update();
-        UpdateValueLabel();
-    }
-
-    protected virtual void UpdateValueLabel()
+    protected override void UpdateValueLabel()
     {
         if (!valueLabel.text.EndsWith("\n"))
         valueLabel.text += '\n';
